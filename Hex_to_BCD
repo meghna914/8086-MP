@@ -1,0 +1,50 @@
+.MODEL SMALL
+.STACK 200H
+.DATA
+
+HEX_NO DW 0ABCDH
+
+BCD DB 5 DUP (0)
+
+DIVISOR_1 DW 2710H
+
+DIVISOR_2 DW 03E8H
+
+DIVISOR_3 DW 64H
+
+DIVISOR_4 DB 0AH
+
+.CODE
+    MOV AX, @DATA
+    MOV DS, AX
+    MOV AX, HEX_NO
+    XOR DX, DX
+
+    DIV DIVISOR_1
+    MOV BCD+4, AL
+
+    MOV AX, DX
+    XOR DX, DX
+
+    DIV DIVISOR_2
+    MOV BCD+3, AL
+
+    MOV AX, DX
+    XOR DX, DX
+
+    DIV DIVISOR_3
+    MOV BCD+2, AL
+
+    MOV AX, DX
+    XOR DX, DX
+
+    DIV DIVISOR_4
+    MOV BCD+1, AL
+
+    MOV AL, AH
+    MOV AH, 00
+    MOV BCD, AL 
+
+    MOV AH, 4CH   ; Terminate program
+    INT 21H
+    END
