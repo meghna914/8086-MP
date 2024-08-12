@@ -1,0 +1,29 @@
+.MODEL SMALL
+.STACK 100H
+
+.DATA
+SRC_BLK DW 123H, 2345H, 0ABC4H, 2345H, 8765H ; Source block
+DSTN_BLK DW 5 DUP(0)                          ; Destination block (initialized to 0)
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA           ; Load data segment address into AX
+    MOV DS, AX              ; Move the content of AX into DS (Data Segment register)
+
+    LEA SI, SRC_BLK         ; Load effective address of SRC_BLK into SI (Source Index)
+    LEA DI, DSTN_BLK        ; Load effective address of DSTN_BLK into DI (Destination Index)
+
+    MOV CX, 5               ; Set the loop counter (number of words to move)
+
+LOOP1: 
+    MOV AX, [SI]            ; Move the word at address [SI] into AX
+    MOV [DI], AX            ; Move the content of AX into [DI]
+    ADD SI, 2               ; Increment SI by 2 to point to the next word
+    ADD DI, 2               ; Increment DI by 2 to point to the next word in destination
+    LOOP LOOP1              ; Decrement CX and loop if CX is not zero
+
+    MOV AH, 4CH             ; Terminate program
+    INT 21H
+
+MAIN ENDP
+END MAIN
