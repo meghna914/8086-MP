@@ -1,0 +1,43 @@
+.MODEL SMALL
+.DATA
+    MPD DW 0C432H, 765BH       ; Define first 32-bit number (MPD)
+    MPR DW 3679H, 0B397H       ; Define second 32-bit number (MPR)
+    RES DW 4 DUP (0)           ; Reserve space for the 64-bit result (RES)
+
+.CODE
+    MOV BX, OFFSET MPD         ; Load address of MPD into BX
+
+    ; Multiply lower word of MPD by lower word of MPR
+    MOV AX, [BX]               ; Load lower word of MPD into AX
+    MUL MPR                    ; Multiply AX by lower word of MPR
+    MOV RES, AX                ; Store lower word of result in RES
+    MOV RES+2, DX              ; Store higher word of result in RES+2
+
+    ; Multiply lower word of MPD by higher word of MPR
+    MOV AX, [BX]               ; Reload lower word of MPD into AX
+    MUL MPR+2                  ; Multiply AX by higher word of MPR
+    ADD RES+2, AX              ; Add result to RES+2
+    ADC RES+4, DX              ; Add carry to RES+4
+    JNC L1                     ; Jump if no carry to L1
+    INC RES+6                  ; Increment RES+6 if there was a carry
+
+L1:
+    ; Multiply higher word of MPD by lower word of MPR
+    MOV AX, [BX+2]             ; Load higher word of MPD into AX
+    MUL MPR                    ; Multiply AX by lower word of MPR
+    ADD RES+2, AX              ; Add result to RES+2
+    ADC RES+4, DX              ; Add carry to RES+4
+    JNC L2                     ; Jump if no carry to L2
+    INC RES+6                  ; Increment RES+6 if there was a carry
+
+L2:
+    ; Multiply higher word of MPD by higher word of MPR
+    MOV AX, [BX+2]             ; Reload higher word of MPD into AX
+    MUL MPR+2                  ; Multiply AX by higher word of MPR
+    ADD RES+4, AX              ; Add result to RES+4
+    ADC RES+6, DX              ; Add carry to RES+6
+
+    ; Exit program
+    MOV AH, 4CH
+    INT 21H
+END
